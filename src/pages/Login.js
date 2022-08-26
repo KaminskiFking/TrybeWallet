@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import addAssignment from '../redux/actions';
 
@@ -56,7 +57,6 @@ class Login extends Component {
             <input
               data-testid="password-input"
               type="password"
-              id="password"
               name="password"
               value={ password }
               onChange={ this.onInputChange }
@@ -67,7 +67,7 @@ class Login extends Component {
             onClick={ () => add(email) && history.push('/carteira') }
             disabled={ !this.validSubmit() }
           >
-            Enviar
+            Entrar
           </button>
         </form>
       </div>
