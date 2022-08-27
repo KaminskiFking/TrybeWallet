@@ -5,6 +5,10 @@ export const addExpenses = (payload) => ({ type: 'ADD_EXPENSES', payload });
 
 export const sumAsk = (value) => ({ type: 'ADD_TOTAL', value });
 
+export const deleteExpense = (value) => ({ type: 'DEL_EXPENSE', value });
+
+export const decreaseTotal = (value) => ({ type: 'DECREASE_TOTAL', value });
+
 export const REQUEST_API = 'REQUEST_API';
 export const GET_COINS = 'GET_PICTURE';
 

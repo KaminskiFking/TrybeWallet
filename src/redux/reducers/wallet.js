@@ -23,6 +23,16 @@ function coins(state = INITIAL_STATE, action) {
     return { ...state, expenses: [...state.expenses, ...action.payload] };
   case 'ADD_TOTAL':
     return { ...state, total: parseFloat((state.total + action.value).toFixed(2)) };
+  case 'DEL_EXPENSE':
+    return {
+      ...state,
+      expenses: state.expenses.filter((element) => element.id !== action.value),
+    };
+  case 'DECREASE_TOTAL':
+    return {
+      ...state,
+      total: (state.total - action.value).toFixed(2),
+    };
   default:
     return state;
   }

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { deleteExpense, decreaseTotal } from '../redux/actions';
 
 class Table extends Component {
   currencyInfos = (param, paramtwo) => {
-    console.log(paramtwo);
     const currencyValue = param.map((element) => element.currency);
     console.log(currencyValue[0]);
     const expensesKeys = param.map((element) => Object.values(element.exchangeRates));
@@ -21,10 +21,11 @@ class Table extends Component {
   };
 
   render() {
-    const { expensesTable } = this.props;
+    const { expensesTable, deleteExpenseClick, decreaseTotalClick } = this.props;
     const result = expensesTable.map((element) => this
       .currencyInfos(expensesTable, element.currency));
     console.log(result);
+    console.log(expensesTable);
     return (
       <div>
         Table
@@ -42,7 +43,7 @@ class Table extends Component {
           </tr>
           <tbody>
             {expensesTable.map((element, index) => (
-              <tr key={ index }>
+              <tr key={ element.id }>
                 <td>{element.description}</td>
                 <td>{element.tag}</td>
                 <td>{element.method}</td>
@@ -51,6 +52,17 @@ class Table extends Component {
                 <td>{Number(result[index].askValue).toFixed(2)}</td>
                 <td>{(element.value * result[index].askValue).toFixed(2)}</td>
                 <td>Real</td>
+                <td>
+                  <button
+                    type="button"
+                    data-testid="delete-btn"
+                    onClick={ () => deleteExpenseClick(element.id)
+                      && decreaseTotalClick((
+                        element.value * result[index].askValue).toFixed(2)) }
+                  >
+                    Excluir
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -66,6 +78,13 @@ const mapStateToProps = (state) => ({
 
 Table.propTypes = {
   expensesTable: PropTypes.string.isRequired,
+  deleteExpenseClick: PropTypes.func.isRequired,
+  decreaseTotalClick: PropTypes.func.isRequired,
 };
 
-export default connect(mapStateToProps)(Table);
+const mapDispatchToProps = (dispatch) => ({
+  deleteExpenseClick: (id) => dispatch(deleteExpense(id)),
+  decreaseTotalClick: (value) => dispatch(decreaseTotal(value)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Table);
