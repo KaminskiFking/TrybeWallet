@@ -7,6 +7,10 @@ export const sumAsk = (value) => ({ type: 'ADD_TOTAL', value });
 
 export const deleteExpense = (value) => ({ type: 'DEL_EXPENSE', value });
 
+export const edit = (value) => ({ type: 'EDIT_REQUEST', value });
+
+export const editForm = (value) => ({ type: 'EDIT_FORM', value });
+
 export const decreaseTotal = (value) => ({ type: 'DECREASE_TOTAL', value });
 
 export const REQUEST_API = 'REQUEST_API';

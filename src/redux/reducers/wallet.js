@@ -6,6 +6,8 @@ const INITIAL_STATE = {
   currencies: [],
   expenses: [],
   total: 0,
+  editState: false,
+  idExpense: 0,
 };
 
 function coins(state = INITIAL_STATE, action) {
@@ -22,7 +24,8 @@ function coins(state = INITIAL_STATE, action) {
   case 'ADD_EXPENSES':
     return { ...state, expenses: [...state.expenses, ...action.payload] };
   case 'ADD_TOTAL':
-    return { ...state, total: parseFloat((state.total + action.value).toFixed(2)) };
+    return { ...state,
+      total: parseFloat((Number(state.total) + action.value).toFixed(2)) };
   case 'DEL_EXPENSE':
     return {
       ...state,
@@ -32,6 +35,20 @@ function coins(state = INITIAL_STATE, action) {
     return {
       ...state,
       total: (state.total - action.value).toFixed(2),
+    };
+  case 'EDIT_REQUEST':
+    return {
+      ...state,
+      editState: true,
+      idExpense: action.value,
+    };
+  case 'EDIT_FORM':
+    return {
+      ...state,
+      editState: false,
+      expenses: state.expenses
+        .map((element) => (
+          element.id === state.idExpense ? action.value : ({ ...element }))),
     };
   default:
     return state;

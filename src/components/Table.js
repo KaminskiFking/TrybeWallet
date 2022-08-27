@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { deleteExpense, decreaseTotal } from '../redux/actions';
+import { deleteExpense, decreaseTotal, edit } from '../redux/actions';
 
 class Table extends Component {
   currencyInfos = (param, paramtwo) => {
@@ -21,7 +21,8 @@ class Table extends Component {
   };
 
   render() {
-    const { expensesTable, deleteExpenseClick, decreaseTotalClick } = this.props;
+    const { expensesTable,
+      deleteExpenseClick, decreaseTotalClick, editClick } = this.props;
     const result = expensesTable.map((element) => this
       .currencyInfos(expensesTable, element.currency));
     console.log(result);
@@ -55,6 +56,14 @@ class Table extends Component {
                 <td>
                   <button
                     type="button"
+                    data-testid="edit-btn"
+                    onClick={ () => editClick(element.id) && decreaseTotalClick((
+                      element.value * result[index].askValue).toFixed(2)) }
+                  >
+                    Editar despesa
+                  </button>
+                  <button
+                    type="button"
                     data-testid="delete-btn"
                     onClick={ () => deleteExpenseClick(element.id)
                       && decreaseTotalClick((
@@ -80,11 +89,13 @@ Table.propTypes = {
   expensesTable: PropTypes.string.isRequired,
   deleteExpenseClick: PropTypes.func.isRequired,
   decreaseTotalClick: PropTypes.func.isRequired,
+  editClick: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = (dispatch) => ({
   deleteExpenseClick: (id) => dispatch(deleteExpense(id)),
   decreaseTotalClick: (value) => dispatch(decreaseTotal(value)),
+  editClick: (value) => dispatch(edit(value)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Table);

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { addExpenses, sumAsk } from '../redux/actions';
+import { addExpenses, sumAsk, editForm } from '../redux/actions';
 
 const paymentMethods = ['Dinheiro', 'Cartão de débito', 'Cartão de crédito'];
 const category = ['Alimentação', 'Lazer', 'Trabalho', 'Transporte', 'Saúde'];
@@ -60,8 +60,32 @@ class WalletForm extends Component {
     formReset.reset();
   };
 
+  handleClickEdit = async (event) => {
+    event.preventDefault();
+    const { value, description, currency, method, tag } = this.state;
+    const { editValueForm, sumAskForm, idButton } = this.props;
+    const requestAPI = await fetch('https://economia.awesomeapi.com.br/json/all');
+    const exchangeRates = await requestAPI.json();
+    const index = Object.keys(exchangeRates).indexOf(currency);
+    const askIndex = Object.values(exchangeRates)[index].ask;
+    const priceUpdate = parseFloat(value) * parseFloat(askIndex);
+    sumAskForm(priceUpdate);
+    const stateUpdate = {
+      id: idButton,
+      value,
+      description,
+      currency,
+      method,
+      tag,
+      exchangeRates,
+    };
+    editValueForm(stateUpdate);
+    const formReset = document.getElementById('form');
+    formReset.reset();
+  };
+
   render() {
-    const { moedas } = this.props;
+    const { moedas, editButton } = this.props;
     const moedasKeys = moedas;
     return (
       <div>
@@ -123,12 +147,21 @@ class WalletForm extends Component {
               </option>
             ))}
           </select>
-          <button
-            type="submit"
-            onClick={ this.handleClick }
-          >
-            Adicionar despesa
-          </button>
+          {!editButton && (
+            <button
+              type="submit"
+              onClick={ this.handleClick }
+            >
+              Adicionar despesa
+            </button>)}
+          {editButton && (
+            <button
+              type="submit"
+              onClick={ this.handleClickEdit }
+            >
+              Editar Despesas
+            </button>
+          )}
         </form>
       </div>
     );
@@ -137,17 +170,23 @@ class WalletForm extends Component {
 
 const mapStateToProps = (state) => ({
   moedas: state.wallet.currencies,
+  editButton: state.wallet.editState,
+  idButton: state.wallet.idExpense,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   expensesAdd: (...payload) => dispatch(addExpenses(payload)),
   sumAskForm: (value) => dispatch(sumAsk(value)),
+  editValueForm: (value) => dispatch(editForm(value)),
 });
 
 WalletForm.propTypes = {
   moedas: PropTypes.string.isRequired,
   expensesAdd: PropTypes.func.isRequired,
   sumAskForm: PropTypes.func.isRequired,
+  idButton: PropTypes.func.isRequired,
+  editValueForm: PropTypes.func.isRequired,
+  editButton: PropTypes.func.isRequired,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(WalletForm);
