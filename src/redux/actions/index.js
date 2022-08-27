@@ -1,6 +1,10 @@
 // Coloque aqui suas actions
 export const addAssignment = (value) => ({ type: 'ADD_EMAIL', value });
 
+export const addExpenses = (payload) => ({ type: 'ADD_EXPENSES', payload });
+
+export const sumAsk = (value) => ({ type: 'ADD_TOTAL', value });
+
 export const REQUEST_API = 'REQUEST_API';
 export const GET_COINS = 'GET_PICTURE';
 

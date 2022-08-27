@@ -1,20 +1,24 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { addExpenses, sumAsk } from '../redux/actions';
 
 const paymentMethods = ['Dinheiro', 'Cartão de débito', 'Cartão de crédito'];
 const category = ['Alimentação', 'Lazer', 'Trabalho', 'Transporte', 'Saúde'];
 
+const obj = {
+  id: 0,
+  value: 0,
+  description: '',
+  currency: 'USD',
+  method: 'Dinheiro',
+  tag: category[0],
+};
+
 class WalletForm extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      value: 0,
-      description: '',
-      currency: 'USD',
-      method: 'Dinheiro',
-      tag: category[0],
-    };
+    this.state = obj;
   }
 
   onInputChange = ({ target }) => {
@@ -24,64 +28,107 @@ class WalletForm extends Component {
     });
   };
 
+  handleClick = async (event) => {
+    event.preventDefault();
+    const { id, value, description, currency, method, tag } = this.state;
+    const { expensesAdd, sumAskForm } = this.props;
+    const requestAPI = await fetch('https://economia.awesomeapi.com.br/json/all');
+    const exchangeRates = await requestAPI.json();
+    const index = Object.keys(exchangeRates).indexOf(currency);
+    const askIndex = Object.values(exchangeRates)[index].ask;
+    const priceUpdate = parseFloat(value) * parseFloat(askIndex);
+    sumAskForm(priceUpdate);
+    const stateUpdate = {
+      id,
+      value,
+      description,
+      currency,
+      method,
+      tag,
+      exchangeRates,
+    };
+    expensesAdd(stateUpdate);
+    this.setState({
+      id: id + 1,
+      value: 0,
+      description: '',
+      currency: 'USD',
+      method: 'Dinheiro',
+      tag: category[0],
+    });
+    const formReset = document.getElementById('form');
+    formReset.reset();
+  };
+
   render() {
     const { moedas } = this.props;
     const moedasKeys = moedas;
-    const { tag, method, currency, description, value } = this.state;
     return (
       <div>
-        <form>
-          <label htmlFor="number">
+        <form id="form">
+          <label htmlFor="value">
             Valor Despesa:
             <input
               data-testid="value-input"
-              type="text"
-              name={ value }
+              type="number"
+              name="value"
               onChange={ this.onInputChange }
             />
           </label>
           <label htmlFor="description">
-            Valor Despesa:
+            Descrição:
             <input
               data-testid="description-input"
               type="text"
-              name={ description }
+              name="description"
               onChange={ this.onInputChange }
             />
           </label>
-          <select data-testid="currency-input">
-            {moedasKeys && moedasKeys.map((values, index) => (
+          <select
+            onChange={ this.onInputChange }
+            data-testid="currency-input"
+            name="currency"
+          >
+            {moedasKeys && moedasKeys.map((valuesMoedas, index) => (
               <option
-                name={ currency }
-                onChange={ this.onInputChange }
                 key={ index }
               >
-                { values }
+                { valuesMoedas }
               </option>
             ))}
           </select>
-          <select data-testid="method-input">
-            {paymentMethods.map((values, index) => (
+          <select
+            onChange={ this.onInputChange }
+            data-testid="method-input"
+            name="method"
+          >
+            {paymentMethods.map((valuesPayment, index) => (
               <option
-                name={ method }
-                onChange={ this.onInputChange }
                 key={ index }
               >
-                { values }
+                { valuesPayment }
               </option>
             ))}
           </select>
-          <select data-testid="tag-input">
-            {category.map((values, index) => (
+          <select
+            onChange={ this.onInputChange }
+            data-testid="tag-input"
+            name="tag"
+          >
+            {category.map((valuesCategory, index) => (
               <option
-                name={ tag }
-                onChange={ this.onInputChange }
                 key={ index }
               >
-                { values }
+                { valuesCategory }
               </option>
             ))}
           </select>
+          <button
+            type="submit"
+            onClick={ this.handleClick }
+          >
+            Adicionar despesa
+          </button>
         </form>
       </div>
     );
@@ -92,8 +139,15 @@ const mapStateToProps = (state) => ({
   moedas: state.wallet.currencies,
 });
 
+const mapDispatchToProps = (dispatch) => ({
+  expensesAdd: (...payload) => dispatch(addExpenses(payload)),
+  sumAskForm: (value) => dispatch(sumAsk(value)),
+});
+
 WalletForm.propTypes = {
   moedas: PropTypes.string.isRequired,
+  expensesAdd: PropTypes.func.isRequired,
+  sumAskForm: PropTypes.func.isRequired,
 };
 
-export default connect(mapStateToProps)(WalletForm);
+export default connect(mapStateToProps, mapDispatchToProps)(WalletForm);

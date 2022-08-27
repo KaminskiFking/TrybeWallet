@@ -3,7 +3,9 @@ import { REQUEST_API, GET_COINS } from '../actions/index';
 
 const INITIAL_STATE = {
   isLoading: false,
-  currencies: '',
+  currencies: [],
+  expenses: [],
+  total: 0,
 };
 
 function coins(state = INITIAL_STATE, action) {
@@ -17,6 +19,10 @@ function coins(state = INITIAL_STATE, action) {
       isLoading: false,
       currencies: Object.keys(action.data),
     };
+  case 'ADD_EXPENSES':
+    return { ...state, expenses: [...state.expenses, ...action.payload] };
+  case 'ADD_TOTAL':
+    return { ...state, total: parseFloat((state.total + action.value).toFixed(2)) };
   default:
     return state;
   }
